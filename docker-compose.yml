@@ -1,0 +1,58 @@
+# ============================================================
+#  docker-compose.yml — Multi-Container Test Infrastructure
+# ============================================================
+#  Container 1 (db):           PostgreSQL database
+#  Container 2 (api):          Flask mock API server
+#  Container 3 (test-runner):  pytest test suite
+#
+#  How it works:
+#    docker compose up --build --abort-on-container-exit
+#
+#  That single command:
+#    1. Starts PostgreSQL
+#    2. Starts the API (waits for DB internally)
+#    3. Starts the tests (waits for API internally)
+#    4. Stops everything when tests finish
+# ============================================================
+
+services:
+
+  # ── Container 1: The Database ────────────────────────────
+  db:
+    image: postgres:16-alpine        # Pre-built image from Docker Hub — no Dockerfile needed
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5432:5432"                  # Optional: lets you connect from host for debugging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  # ── Container 2: The Mock API Server ─────────────────────
+  api:
+    build: ./app                     # Build from app/Dockerfile
+    ports:
+      - "5000:5000"                  # Optional: lets you hit API from browser for debugging
+    environment:
+      DB_HOST: db                    # 'db' is the service name above — Docker DNS resolves it
+      DB_PORT: 5432
+      DB_NAME: testdb
+      DB_USER: testuser
+      DB_PASSWORD: testpass
+    depends_on:
+      db:
+        condition: service_healthy   # Don't start API until DB passes healthcheck
+
+  # ── Container 3: The Test Runner ─────────────────────────
+  test-runner:
+    build: ./tests                   # Build from tests/Dockerfile
+    environment:
+      API_URL: http://api:5000       # 'api' is the service name — Docker DNS resolves it
+    volumes:
+      - ./reports:/tests/reports     # Mount reports folder so we can read them after tests finish
+    depends_on:
+      - api                          # Start after API (tests also poll /health internally)
