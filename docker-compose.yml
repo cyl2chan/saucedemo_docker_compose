@@ -56,3 +56,19 @@ services:
       - ./reports:/tests/reports     # Mount reports folder so we can read them after tests finish
     depends_on:
       - api                          # Start after API (tests also poll /health internally)
+
+  # ── Container 4: The web UI for managing database ────────
+  # Homework 17.
+  # Bonus — Add a fourth service: Research and add an Adminer container (a web UI for PostgreSQL). 
+  # It should connect to the same 'db' service. After docker compose up, 
+  # you should be able to open http://localhost:8080 and see the test data in the database visually.
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
