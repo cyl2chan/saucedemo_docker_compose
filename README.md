@@ -7,6 +7,10 @@ In this project, I did the following:
 - **Wired into GitHub Actions**: Created a .github/workflows/docker-tests.yml that runs docker compose up --build --abort-on-container-exit in CI. Uploaded reports/ as an artifact.
 - **Added an Adminer container**: Researched and added an Adminer container (a web UI for PostgreSQL). Connected it to the same 'db' service. After docker compose up, I opened http://localhost:8080 and see the test data in the database visually.
 
+Below is screenshots of my Adminer container:
+![alt text]({F5F26EF0-39E8-473A-BBD2-9F7487A3B58B}.png)
+![alt text]({5860C018-E20E-450B-9AD4-7A64F5BF3453}.png)
+
 ## What This Is
 A complete working example of 3 Docker containers working together:
 - **db** — PostgreSQL database (seeded with test data)
