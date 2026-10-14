@@ -1,5 +1,12 @@
 # Docker Compose Demo — Multi-Container QE Infrastructure
 
+## Project Description
+In this project, I did the following:
+- **Run the demo**: Clone/copy the docker-compose-demo folder. Run docker compose up --build --abort-on-container-exit. Verify tests pass and report.html appears.
+- **Add a test to create a new product and verify it exists**: Add new test to test_product_api.py that creates a product, then fetches ALL products and verifies the new one is in the list. Run via docker compose.
+- **Wire into GitHub Actions**: Create a .github/workflows/docker-tests.yml that runs docker compose up --build --abort-on-container-exit in CI. Upload reports/ as an artifact.
+- **Add an Adminer container**: Research and add an Adminer container (a web UI for PostgreSQL). Connect it to the same 'db' service. After docker compose up, I opened http://localhost:8080 and see the test data in the database visually.
+
 ## What This Is
 A complete working example of 3 Docker containers working together:
 - **db** — PostgreSQL database (seeded with test data)
