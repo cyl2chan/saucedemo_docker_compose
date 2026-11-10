@@ -140,6 +140,54 @@ def delete_product(product_id):
     return jsonify({"message": f"Product {product_id} deleted"}), 200
 
 
+@app.route("/api/products/<int:product_id>", methods=["PUT"])
+def replace_product(product_id):
+    """PUT — replace a product. name and price are required."""
+    data = request.get_json()
+    if not data or "name" not in data or "price" not in data:
+        return jsonify({"error": "name and price are required"}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE products SET name = %s, price = %s, in_stock = %s WHERE id = %s "
+        "RETURNING id, name, price, in_stock",
+        (data["name"], data["price"], data.get("in_stock", True), product_id),
+    )
+
+    row = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    if row is None:
+        return jsonify({"error": "Product not found"}), 404
+    return jsonify({"id": row[0], "name": row[1], "price": float(row[2]), "in_stock": row[3]}), 200
+
+
+@app.route("/api/products/<int:product_id>", methods=["PATCH"])
+def update_product(product_id):
+    """PATCH — change only the fields you send."""
+    data = request.get_json()
+    fields = {k: v for k, v in (data or {}).items() if k in ("name", "price", "in_stock")}
+    if not fields:
+        return jsonify({"error": "send at least one of: name, price, in_stock"}), 400
+
+    set_clause = ", ".join(f"{column} = %s" for column in fields)
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        f"UPDATE products SET {set_clause} WHERE id = %s RETURNING id, name, price, in_stock",
+        (*fields.values(), product_id),
+    )
+    row = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    if row is None:
+        return jsonify({"error": "Product not found"}), 404
+    return jsonify({"id": row[0], "name": row[1], "price": float(row[2]), "in_stock": row[3]}), 200
+
+
 # ─── Startup ─────────────────────────────────────────────
 
 if __name__ == "__main__":
