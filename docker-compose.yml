@@ -51,7 +51,8 @@ services:
   test-runner:
     build: ./tests                   # Build from tests/Dockerfile
     environment:
-      API_URL: http://api:5000       # 'api' is the service name — Docker DNS resolves it
+      #API_URL: http://api:5000       # 'api' is the service name — Docker DNS resolves it
+      PRODUCT_BASE_URL: http://api:5000
     volumes:
       - ./reports:/tests/reports     # Mount reports folder so we can read them after tests finish
     depends_on:
