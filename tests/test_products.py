@@ -7,24 +7,16 @@ from schemas import PRODUCT_SCHEMA
 def test_get_products_return_200_and_list(products_api):
     response = products_api.get(f"/api/products")
     products_list = response.json()
-
-    assert response.status == 200
+    assert response.status == 200, response.text()
     assert isinstance(products_list, list)
-
 
 # API phase 3 Homework:
 # Step 3: 2. Every product in the list matches a PRODUCT_SCHEMA you add to schemas.py. 
 # Reuse what you learned in Phase 2: which fields are required, and what type is each one?
-# def test_schema():
-#     response = test_get_products_return_200_and_list()
-#     assert response.status == 200
-#     validate(instance=response.json(), schema=PRODUCT_SCHEMA)
-
-# def test_forecast_macthes_schema(api):
-#     response = get_forecast(api, 49.25, -123.12)
-#     assert response.status == 200
-#     validate(instance=response.json(), schema=FORECAST_SCHEMA)
-
+def test_schema(products_api):
+    response = products_api.get(f"/api/products")
+    products_list = response.json()
+    validate(instance=products_list, schema=PRODUCT_SCHEMA)
 
 # API phase 3 Homework:
 # Step 3: 3. Getting one product by id returns 200 and the same data as that product in the list.
@@ -34,7 +26,7 @@ def test_get_products_return_200_and_list(products_api):
 #     product1_id = response_products.json()[0]["id"]
 #     response = requests.get(f"/api/products/{product1_id}")
 
-#     return response.status_code == 200
+#     assert response.status_code == 200
 
 # # API phase 3 Homework:
 # # Step 3: 4. A product id that doesn't exist returns 404, and the body has an error message.
