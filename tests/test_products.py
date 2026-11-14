@@ -55,10 +55,12 @@ def test_product_id_not_exist_return_404_error_message(products_api):
     print(f"response_product.text(): {response_product.text()}")
     
 
-# # API phase 3 Homework:
-# # Step 3: 5. GET /api/products/abc. Predict the status first, then check it. 
-# # Look at the content-type of the response too.
-# def test_get_product_abc():
-#     abc_response = requests.get(f"/api/products/abc")
-#     return abc_response.status_code and abc_response.headers["content-type"]
+# API phase 3 Homework:
+# Step 3: 5. GET /api/products/abc. Predict the status first, then check it. 
+# Look at the content-type of the response too.
+def test_get_product_abc(products_api):
+    abc_response = products_api.get(f"/api/products/abc")
+    assert abc_response.status == 404
+    assert abc_response.headers["content-type"]
+    print(f"abc_response.headers['content-type']: {abc_response.headers['content-type']}")
 
