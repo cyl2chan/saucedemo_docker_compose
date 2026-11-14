@@ -12,4 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["pytest", "-v", "--tb=short", "--html=/tests/reports/report.html", "--self-contained-html"]
+ENV PYTHONUNBUFFERED=1
+
+CMD ["pytest", "-s", "-v", "--tb=short", "--html=/tests/reports/report.html", "--self-contained-html"]

@@ -45,14 +45,15 @@ def test_get_one_product_return_200_and_same_data_in_list(products_api):
     assert list_product1_in_stock == product1_in_stock, f"list_product1_in_stock = {list_product1_in_stock}; product1_in_stock = {product1_in_stock}"
 
 
-# # API phase 3 Homework:
-# # Step 3: 4. A product id that doesn't exist returns 404, and the body has an error message.
-# def test_product_id_not_exist_return_404_error_message():
-#     one_product_id = 9
-#     response_products = requests.get(f"/api/products")
-#     products_id = response_products.json()["id"]
-#     if one_product_id not in products_id:
-#         return products_id.status_code == 404 and "error: 404 product id doesn't exist"
+# API phase 3 Homework:
+# Step 3: 4. A product id that doesn't exist returns 404, and the body has an error message.
+def test_product_id_not_exist_return_404_error_message(products_api):
+    one_product_id = 9999999999
+    response_product = products_api.get(f"/api/products/{one_product_id}")
+    assert response_product.status == 404
+    assert "error" in response_product.text(), f"response_product.text(): {response_product.text()}"
+    print(f"response_product.text(): {response_product.text()}")
+    
 
 # # API phase 3 Homework:
 # # Step 3: 5. GET /api/products/abc. Predict the status first, then check it. 
