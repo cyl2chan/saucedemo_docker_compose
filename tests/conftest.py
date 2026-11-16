@@ -9,4 +9,14 @@ def products_api(playwright: Playwright) -> APIRequestContext:
     yield context
     context.dispose()
 
+from products_api import create_product, delete_product
 
+@pytest.fixture
+def new_product(products_api):
+    payload = {"name": "Test Product", "price": 12.50, "in_stock": True}
+    response = create_product(products_api, payload)
+    assert response.status == 201, response.text()
+
+    product = response.json()
+    yield product
+    delete_product(products_api, product["id"])

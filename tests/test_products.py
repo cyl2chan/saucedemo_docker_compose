@@ -95,3 +95,28 @@ def test_create_product(products_api):
     # TODO 4: clean up by deleting the product
     response_delete = products_api.delete(f"/api/products/{product_id()}")
     assert response_delete.status == 200
+
+# API phase 3 Homework:
+# Step 5: A fixture that creates and cleans up
+# Rewrite your Step 3 single-product test to use new_product in conftest.py
+def test_rewrite_create_product(products_api, new_product):
+    # TODO 1: every field in payload comes back unchanged in created, and created has an "id"
+    assert new_product["name"] == "Test Product"
+    assert new_product["price"] == 12.50
+    assert new_product["in_stock"] == True
+    assert "id" in new_product
+
+    # TODO 2 (the receipt): GET the product by its id and check it matches created
+    # TODO 3: the new id appears in GET /api/products
+    response_products_list = products_api.get("/api/products")
+    products = response_products_list.json()
+    def product_id():
+        for product in products:
+            if product["name"] == "Test Product":
+                return product["id"]
+    print("products:", products)
+    print("product_id():", product_id(), "; new_product['id']:", new_product['id'])
+    assert product_id() == new_product["id"], f"product_id(): {product_id()}; new_product['id']: {new_product['id']}"
+
+    # TODO 4: clean up by deleting the product
+    # code to delete product is in conftest.py and products_api.py
