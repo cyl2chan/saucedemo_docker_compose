@@ -81,6 +81,18 @@ def test_create_product(products_api):
     assert "id" in created
 
     # TODO 2 (the receipt): GET the product by its id and check it matches created
+    response_products_list = products_api.get("/api/products")
+    products = response_products_list.json()
+    def product_id():
+        for product in products:
+            if product["name"] == "Leon Test Mug":
+                return product["id"]
+
+    #product_id = products_list.json()["name" == "Leon Test Mug"]["id"] 
+    #product_price = products_list.json()["name" == "Leon Test Mug"]["price"] 
+    print("products:", products)
+    assert product_id() == created["id"], f"product_id(): {product_id()}; created['id']: {created['id']}"
+    print("product_id():", product_id(), "; created['id']:", created['id'])
 
     # TODO 3: the new id appears in GET /api/products
 
