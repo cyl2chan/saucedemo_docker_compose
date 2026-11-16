@@ -1,6 +1,6 @@
 from jsonschema import validate
-import requests
 from schemas import PRODUCT_SCHEMA
+from products_api import create_product
 
 # API phase 3 Homework:
 # Step 3: 1. GET /api/products returns 200 and a list.
@@ -64,3 +64,24 @@ def test_get_product_abc(products_api):
     assert abc_response.headers["content-type"]
     print(f"abc_response.headers['content-type']: {abc_response.headers['content-type']}")
 
+# API phase 3 Homework:
+# Step 4: Create a product, and check the receipt
+# The response to a POST is the server saying it created something. 
+# A receipt is when you read it back to prove the change really happened. Start from this skeleton:
+def test_create_product(products_api):
+    payload = {"name": "Leon Test Mug", "price": 8.50, "in_stock": False}
+    response = create_product(products_api, payload)
+    assert response.status == 201, response.text()
+    created = response.json()
+
+    # TODO 1: every field in payload comes back unchanged in created, and created has an "id"
+    assert created["name"] == "Leon Test Mug"
+    assert created["price"] == 8.50
+    assert created["in_stock"] == False
+    assert "id" in created
+
+    # TODO 2 (the receipt): GET the product by its id and check it matches created
+
+    # TODO 3: the new id appears in GET /api/products
+
+    # TODO 4: clean up by deleting the product
