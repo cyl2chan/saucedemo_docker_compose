@@ -3,7 +3,7 @@ from playwright.sync_api import APIRequestContext, Playwright
 
 PRODUCTS_BASE_URL = os.getenv("PRODUCTS_BASE_URL", "http://api:5000")
 
-@pytest.fixture()#scope="session")
+@pytest.fixture(scope="session") # session: 1.21s, 1.22s, 0.97s; default: 0.96s, 0.95s, 0.97s; session: 0.93s, 1.08s
 def products_api(playwright: Playwright) -> APIRequestContext:
     context = playwright.request.new_context(base_url=PRODUCTS_BASE_URL, timeout=10_000)
     yield context

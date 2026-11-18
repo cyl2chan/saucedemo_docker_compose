@@ -1,6 +1,7 @@
 from jsonschema import validate
 from schemas import PRODUCT_SCHEMA
 from products_api import create_product
+import pytest
 
 # API phase 3 Homework:
 # Step 3: 1. GET /api/products returns 200 and a list.
@@ -120,3 +121,87 @@ def test_rewrite_create_product(products_api, new_product):
 
     # TODO 4: clean up by deleting the product
     # code to delete product is in conftest.py and products_api.py
+
+# API phase 3 Homework:
+# Step 6: Bad input on POST, and hunting for bugs
+@pytest.mark.parametrize("payload", [
+    {"price": 5.00},      # missing name
+    {"name": "No Price"}, # missing price
+])
+def test_create_product_missing_field(products_api, payload):
+    response = create_product(products_api, payload)
+    assert response.status == 400
+    assert response.json()["error"]
+
+# design my own bad inputs
+# | Wrong type: number of price in quotes "6.00" | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
+# | in_stock == Yes | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
+# | number as name | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
+@pytest.mark.parametrize("wrong_type_payload", [
+    {"name": "Test Earbuds One", "price": "9.99", "in_stock": True},
+    {"name": "Test Earbuds Two", "price": 9.99, "in_stock": "Yes"},
+    {"name": 999, "price": 9.99, "in_stock": True},
+])
+# def test_create_product_wrong_type(products_api, wrong_type_payload):
+#     response = create_product(products_api, wrong_type_payload)
+#     new_products = response.json()
+#     def match_schema():
+#         try: 
+#             validate(instance=new_products, schema=PRODUCT_SCHEMA)
+#         except: 
+#             return response.status == 400
+
+    
+#     assert response.status == match_schema() == 400
+#     #assert response.json()["error"]
+    
+    
+
+
+# # | Empty and missing: empty name | 400 Bad Request | Name is required for a product to be created |
+# # | null for name | 400 Bad Request | Name is required for a product to be created |
+# # | empty body {} | 400 Bad Request | Information of name, price, and in_stock are required for a product to be created |
+# @pytest.mark.parametrize("empty_missing_payload", [
+#     {"name": "", "price": 9.99, "in_stock": True},
+#     {"name": None, "price": 9.99, "in_stock": True},
+#     {},
+# ])
+
+# # | Too long a name: try 100, 101 | 400 Bad Request or 422 Unprocessable Content | Since input of name has exceeded limit, it's a problem or unable to process the value |
+# @pytest.mark.parametrize("too_long_name_payload", [
+#     {"name": "Advanced Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True},
+#     {"name": "Excellent Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True},
+# ])
+
+# # | Price make no sense: negative, very large, zero, empty, null, letter, sympbols |400 Bad Request or 422 Unprocessable Content| Since it makes on sense, it's a problem or unable to process the value |
+# @pytest.mark.parametrize("price_no_sense_payload", [
+#     {"name": "Test Headphone One", "price": -9.99, "in_stock": True},
+#     {"name": "Test Headphone Two", "price": 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999, "in_stock": True},
+#     {"name": "Test Headphone Three", "price": 0, "in_stock": True},
+#     {"name": "Test Headphone Four", "price": "", "in_stock": True},
+#     {"name": "Test Headphone Five", "price": None, "in_stock": True},
+#     {"name": "Test Headphone Six", "price": "hello", "in_stock": True},
+#     {"name": "Test Headphone Seven", "price": hello, "in_stock": True},
+#     {"name": "Test Headphone Eight", "price": "$", "in_stock": True},
+# ])
+
+# #| Extra field API doesn't know about eg. country made from | 404 Not Found | Extra field doesn't exist in API |
+# @pytest.mark.parametrize("Extra_field_payload", [
+#     {"name": "Test Keyboard One", "price": 9.99, "in_stock": True, "made_from": "Canada"},
+#     {"name": "Test Keyboard Two", "price": 9.99, "in_stock": True, "manufacture_date": "Nov 18, 2022"},
+#     {"name": "Test Keyboard Three", "price": 9.99, "in_stock": True, "color": "red"},
+# ])
+
+# #| Duplicate entry: product with same name in one of items in database | 409 COnflict | Same item has already exist |
+# @pytest.mark.parametrize("duplicate_payload", [
+#     {"name": "Sauce Labs Backpack", "price": 29.99, "in_stock": True},
+#     {"name": "Sauce Labs Backpack", "price": 9.99, "in_stock": True},
+#     {"name": "Sauce Labs Bike Light", "price": 9.99, "in_stock": True},
+#     {"name": "Sauce Labs Bike Light", "price": 7.99, "in_stock": True},
+#     {"name": "Sauce Labs Bolt T-Shirt", "price": 15.99, "in_stock": True},
+#     {"name": "Sauce Labs Bolt T-Shirt", "price": 49.99, "in_stock": True},
+#     {"name": "Sauce Labs Fleece Jacket", "price": 49.99, "in_stock": False},
+#     {"name": "Sauce Labs Fleece Jacket", "price": 39.99, "in_stock": False},
+# ])
+
+
