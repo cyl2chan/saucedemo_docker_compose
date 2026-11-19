@@ -135,9 +135,7 @@ def test_create_product_missing_field(products_api, payload):
     assert response.json()["error"]
 
 # design my own bad inputs
-# | Wrong type: number of price in quotes "6.00" | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
-# | in_stock == Yes | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
-# | number as name | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
+
 @pytest.mark.parametrize("wrong_type_payload", [
     {"name": "Test Earbuds One", "price": "9.99", "in_stock": True},
     {"name": "Test Earbuds Two", "price": 9.99, "in_stock": "Yes"},
@@ -145,15 +143,11 @@ def test_create_product_missing_field(products_api, payload):
 ])
 def test_create_product_wrong_type(products_api, wrong_type_payload):
     response = create_product(products_api, wrong_type_payload)
-    new_products = response.json()
-    def match_schema():
-        try: 
-            validate(instance=new_products, schema=PRODUCT_SCHEMA)
-        except: 
-            return response.status == 400
-    match_schema()
-    
+    #new_products = response.json()
+    #validate(instance=new_products, schema=PRODUCT_SCHEMA)
+
     try: 
+        print("response.status:", response.status)
         assert response.status == 400   # failed. 201 instead. 
         assert response.json()["error"]
     except: 
@@ -176,14 +170,19 @@ def test_create_product_wrong_type(products_api, wrong_type_payload):
             assert response_delete.status == 200
     
 
-# # | Empty and missing: empty name | 400 Bad Request | Name is required for a product to be created |
-# # | null for name | 400 Bad Request | Name is required for a product to be created |
-# # | empty body {} | 400 Bad Request | Information of name, price, and in_stock are required for a product to be created |
+# | Empty and missing: empty name | 400 Bad Request | Name is required for a product to be created |
+# | null for name | 400 Bad Request | Name is required for a product to be created |
+# | empty body {} | 400 Bad Request | Information of name, price, and in_stock are required for a product to be created |
 # @pytest.mark.parametrize("empty_missing_payload", [
 #     {"name": "", "price": 9.99, "in_stock": True},
 #     {"name": None, "price": 9.99, "in_stock": True},
 #     {},
 # ])
+# def test_create_empty_missing_payload(products_api, empty_missing_payload):
+#     response = create_product(products_api, empty_missing_payload)
+#     new_products = response.json()
+
+
 
 # # | Too long a name: try 100, 101 | 400 Bad Request or 422 Unprocessable Content | Since input of name has exceeded limit, it's a problem or unable to process the value |
 # @pytest.mark.parametrize("too_long_name_payload", [
