@@ -3,7 +3,7 @@
 # Reuse what you learned in Phase 2: which fields are required, and what type is each one?
 
 PRODUCT_SCHEMA = {
-    #"type": "object",
+    "type": "object",
     "required": ["id", "name", "price", "in_stock"], 
     "properties": {
         "id": {"type": "integer"},

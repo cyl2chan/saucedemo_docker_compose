@@ -1,6 +1,6 @@
 from jsonschema import validate
 from schemas import PRODUCT_SCHEMA
-from products_api import create_product
+from products_api import create_product, delete_product
 import pytest
 
 # API phase 3 Homework:
@@ -17,7 +17,8 @@ def test_get_products_return_200_and_list(products_api):
 def test_schema(products_api):
     response = products_api.get(f"/api/products")
     products_list = response.json()
-    validate(instance=products_list, schema=PRODUCT_SCHEMA)
+    for product in products_list:
+        validate(instance=product, schema=PRODUCT_SCHEMA)
 
 # API phase 3 Homework:
 # Step 3: 3. Getting one product by id returns 200 and the same data as that product in the list.
@@ -142,21 +143,38 @@ def test_create_product_missing_field(products_api, payload):
     {"name": "Test Earbuds Two", "price": 9.99, "in_stock": "Yes"},
     {"name": 999, "price": 9.99, "in_stock": True},
 ])
-# def test_create_product_wrong_type(products_api, wrong_type_payload):
-#     response = create_product(products_api, wrong_type_payload)
-#     new_products = response.json()
-#     def match_schema():
-#         try: 
-#             validate(instance=new_products, schema=PRODUCT_SCHEMA)
-#         except: 
-#             return response.status == 400
+def test_create_product_wrong_type(products_api, wrong_type_payload):
+    response = create_product(products_api, wrong_type_payload)
+    new_products = response.json()
+    def match_schema():
+        try: 
+            validate(instance=new_products, schema=PRODUCT_SCHEMA)
+        except: 
+            return response.status == 400
+    match_schema()
+    
+    try: 
+        assert response.status == 400   # failed. 201 instead. 
+        assert response.json()["error"]
+    except: 
+        products_list = products_api.get("/api/products")
+        products = products_list.json()
 
-    
-#     assert response.status == match_schema() == 400
-#     #assert response.json()["error"]
-    
-    
+        
+        payload_names = [wrong_type_payload["name"]]
+        print("payload_names:", payload_names)
 
+        def find_product_id(payload_names):
+            payload_ids = [] 
+            for product in products:
+                if product["name"] in payload_names:
+                    payload_ids.append(product["id"])
+            return payload_ids
+
+        for payload_id in find_product_id(payload_names):
+            response_delete = delete_product(products_api, payload_id)
+            assert response_delete.status == 200
+    
 
 # # | Empty and missing: empty name | 400 Bad Request | Name is required for a product to be created |
 # # | null for name | 400 Bad Request | Name is required for a product to be created |

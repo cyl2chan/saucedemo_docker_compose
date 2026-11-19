@@ -1,9 +1,9 @@
 
-| Input | Expected status | Why |
+| Input | Expected status | Why | Actual
 |---|---|---|
-| Wrong type: number of price in quotes "6.00" | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
-| in_stock == Yes | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
-| number as name | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value |
+| Wrong type: number of price in quotes "6.00" | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value | 201 Created
+| in_stock == Yes | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value | 201 Created
+| number as name | 400 Bad Request or 422 Unprocessable Content | Wrong type is a problem, which cause server to reject it / Unable to process the value | 201 Created
 
 | Empty and missing: empty name | 400 Bad Request | Name is required for a product to be created |
 | null for name | 400 Bad Request | Name is required for a product to be created |
