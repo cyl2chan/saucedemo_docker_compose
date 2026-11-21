@@ -13,5 +13,6 @@
 | Too long a name: 101 | 400 Bad Request or 422 Unprocessable Content | Since input of name has exceeded limit, it's a problem or unable to process the value |
 
 | Price make no sense: negative, very large, zero, empty, null, letter, sympbols |400 Bad Request or 422 Unprocessable Content| Since it makes on sense, it's a problem or unable to process the value |
+
 | Extra field API doesn't know about eg. country made from | 404 Not Found | Extra field doesn't exist in API |
 | Duplicate entry: product with same name in one of items in database | 409 COnflict | Same item has already exist |

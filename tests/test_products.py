@@ -134,12 +134,19 @@ def test_create_product_missing_field(products_api, payload):
     assert response.status == 400
     assert response.json()["error"]
 
+
 # design my own bad inputs
 
 @pytest.mark.parametrize("wrong_type_payload", [
+    # wrong type of data
     {"name": "Test Earbuds One", "price": "9.99", "in_stock": True},
     {"name": "Test Earbuds Two", "price": 9.99, "in_stock": "Yes"},
     {"name": 999, "price": 9.99, "in_stock": True},
+
+    # missing or empty fields
+    {"name": "", "price": 9.99, "in_stock": True}, 
+    {"name": None, "price": 9.99, "in_stock": True},
+    {},
 ])
 def test_create_product_wrong_type(products_api, wrong_type_payload):
     response = create_product(products_api, wrong_type_payload)
@@ -165,23 +172,13 @@ def test_create_product_wrong_type(products_api, wrong_type_payload):
         for payload_id in find_product_id(payload_names):
             response_delete = delete_product(products_api, payload_id)
             assert response_delete.status == 200
-    
-# def test_create_product_wrong_type(products_api, wrong_type_payload):
-#     response = create_product(products_api, wrong_type_payload)
-
-#     if response.status == 201:
-#         product_id = response.json()["id"]
-#         cleanup = delete_product(products_api, product_id)
-#         assert cleanup.status == 200, cleanup.text()
-
-#     assert response.status == 400, response.text()
-#     assert response.json().get("error"), response.text()
-
 
 # | Empty and missing: empty name | 400 Bad Request | Name is required for a product to be created |
 # | null for name | 400 Bad Request | Name is required for a product to be created |
 # | empty body {} | 400 Bad Request | Information of name, price, and in_stock are required for a product to be created |
-# @pytest.mark.parametrize("empty_missing_payload", [
+
+# move this data to above function
+# @pytest.mark.parametrize("empty_missing_payload", [ 
 #     {"name": "", "price": 9.99, "in_stock": True},
 #     {"name": None, "price": 9.99, "in_stock": True},
 #     {},
