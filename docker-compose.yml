@@ -16,7 +16,6 @@
 # ============================================================
 
 services:
-
   # ── Container 1: The Database ────────────────────────────
   db:
     image: postgres:16-alpine        # Pre-built image from Docker Hub — no Dockerfile needed

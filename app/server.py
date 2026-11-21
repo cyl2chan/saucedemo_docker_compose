@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request
 import psycopg2
 import os
 import time
+from jsonschema import validate, ValidationError, Draft202012Validator
 
 app = Flask(__name__)
 
@@ -106,12 +107,27 @@ def get_product(product_id):
     return jsonify({"id": row[0], "name": row[1], "price": float(row[2]), "in_stock": row[3]}), 200
 
 
+CREATE_PRODUCT_SCHEMA = {
+    "type": "object",
+    "required": ["name", "price"],
+    "properties": {
+        "name": {"type": "string"},
+        "price": {"type": "number"},
+        "in_stock": {"type": "boolean"},
+    },
+}
+
 @app.route("/api/products", methods=["POST"])
 def create_product():
     """POST — create a new product."""
     data = request.get_json()
     if not data or "name" not in data or "price" not in data:
         return jsonify({"error": "name and price are required"}), 400
+    try:
+        validate(instance=data, schema=CREATE_PRODUCT_SCHEMA)
+    except ValidationError as exc:
+        return jsonify({"error": exc.message}), 400
+    
     conn = get_db()
     cur = conn.cursor()
     cur.execute(

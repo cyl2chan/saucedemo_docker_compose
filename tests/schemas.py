@@ -12,3 +12,13 @@ PRODUCT_SCHEMA = {
         "in_stock": {"type": "boolean"}
     }
 }
+
+CREATE_PRODUCT_SCHEMA = {
+    "type": "object",
+    "required": ["name", "price"],
+    "properties": {
+        "name": {"type": "string"},
+        "price": {"type": "number"},
+        "in_stock": {"type": "boolean"},
+    },
+}
