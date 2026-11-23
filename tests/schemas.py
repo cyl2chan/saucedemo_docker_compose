@@ -10,6 +10,7 @@ PRODUCT_SCHEMA = {
         "name": {"type": "string"},
         "price": {"type": "number"}, 
         "in_stock": {"type": "boolean"}
-    }
+    },
+    "additionalProperties": False
 }
 

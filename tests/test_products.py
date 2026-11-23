@@ -147,6 +147,25 @@ def test_create_product_missing_field(products_api, payload):
     {"name": "", "price": 9.99, "in_stock": True}, 
     {"name": None, "price": 9.99, "in_stock": True},
     {},
+
+    # price does not make sense
+    {"name": "Test Headphone One", "price": -9.99, "in_stock": True},
+    {"name": "Test Headphone Two", "price": 9999.99, "in_stock": True}, # 201
+    {"name": "Test Headphone Two.2", "price": 10000, "in_stock": True},
+    {"name": "Test Headphone Three", "price": 0, "in_stock": True},
+    {"name": "Test Headphone Four", "price": "", "in_stock": True},
+    {"name": "Test Headphone Five", "price": None, "in_stock": True},
+    {"name": "Test Headphone Six", "price": "hello", "in_stock": True},
+    {"name": "Test Headphone Eight", "price": "$", "in_stock": True},
+
+    # too long a name
+    {"name": "Advanced Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True}, #201
+    {"name": "Excellent Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True}, #500
+
+    # extra field API doesn't know about
+    {"name": "Test Keyboard One", "price": 9.99, "in_stock": True, "made_from": "Canada"},
+    {"name": "Test Keyboard Two", "price": 9.99, "in_stock": True, "manufacture_date": "Nov 18, 2022"},
+    {"name": "Test Keyboard Three", "price": 9.99, "in_stock": True, "color": "red"},
 ])
 def test_create_product_wrong_type(products_api, wrong_type_payload):
     response = create_product(products_api, wrong_type_payload)
@@ -160,7 +179,7 @@ def test_create_product_wrong_type(products_api, wrong_type_payload):
         products = products_list.json()
 
         payload_names = [wrong_type_payload["name"]]
-        print("payload_names:", payload_names)
+        print("payload_names:", payload_names, "; wrong_type_payload:", wrong_type_payload)
 
         def find_product_id(payload_names):
             payload_ids = [] 
@@ -173,46 +192,6 @@ def test_create_product_wrong_type(products_api, wrong_type_payload):
             response_delete = delete_product(products_api, payload_id)
             assert response_delete.status == 200
 
-# | Empty and missing: empty name | 400 Bad Request | Name is required for a product to be created |
-# | null for name | 400 Bad Request | Name is required for a product to be created |
-# | empty body {} | 400 Bad Request | Information of name, price, and in_stock are required for a product to be created |
-
-# move this data to above function
-# @pytest.mark.parametrize("empty_missing_payload", [ 
-#     {"name": "", "price": 9.99, "in_stock": True},
-#     {"name": None, "price": 9.99, "in_stock": True},
-#     {},
-# ])
-# def test_create_empty_missing_payload(products_api, empty_missing_payload):
-#     response = create_product(products_api, empty_missing_payload)
-#     new_products = response.json()
-
-
-
-# # | Too long a name: try 100, 101 | 400 Bad Request or 422 Unprocessable Content | Since input of name has exceeded limit, it's a problem or unable to process the value |
-# @pytest.mark.parametrize("too_long_name_payload", [
-#     {"name": "Advanced Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True},
-#     {"name": "Excellent Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True},
-# ])
-
-# # | Price make no sense: negative, very large, zero, empty, null, letter, sympbols |400 Bad Request or 422 Unprocessable Content| Since it makes on sense, it's a problem or unable to process the value |
-# @pytest.mark.parametrize("price_no_sense_payload", [
-#     {"name": "Test Headphone One", "price": -9.99, "in_stock": True},
-#     {"name": "Test Headphone Two", "price": 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999, "in_stock": True},
-#     {"name": "Test Headphone Three", "price": 0, "in_stock": True},
-#     {"name": "Test Headphone Four", "price": "", "in_stock": True},
-#     {"name": "Test Headphone Five", "price": None, "in_stock": True},
-#     {"name": "Test Headphone Six", "price": "hello", "in_stock": True},
-#     {"name": "Test Headphone Seven", "price": hello, "in_stock": True},
-#     {"name": "Test Headphone Eight", "price": "$", "in_stock": True},
-# ])
-
-# #| Extra field API doesn't know about eg. country made from | 404 Not Found | Extra field doesn't exist in API |
-# @pytest.mark.parametrize("Extra_field_payload", [
-#     {"name": "Test Keyboard One", "price": 9.99, "in_stock": True, "made_from": "Canada"},
-#     {"name": "Test Keyboard Two", "price": 9.99, "in_stock": True, "manufacture_date": "Nov 18, 2022"},
-#     {"name": "Test Keyboard Three", "price": 9.99, "in_stock": True, "color": "red"},
-# ])
 
 # #| Duplicate entry: product with same name in one of items in database | 409 COnflict | Same item has already exist |
 # @pytest.mark.parametrize("duplicate_payload", [
