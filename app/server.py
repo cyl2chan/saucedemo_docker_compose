@@ -111,7 +111,7 @@ CREATE_PRODUCT_SCHEMA = {
     "type": "object",
     "required": ["name", "price"],
     "properties": {
-        "name": {"type": "string", "minLength": 3}, 
+        "name": {"type": "string", "minLength": 3, "maxlength": 100}, 
         "price": {"type": "number", "minimum": 0.01, "maximum": 9999.99},
         "in_stock": {"type": "boolean"},
     "additionalProperties": False,
@@ -132,7 +132,6 @@ def create_product():
         print("data: ", data, "; property: ", property)
         if property != "name" and property != "price" and property != "in_stock" and property != "id":
             return jsonify({"error": "unknown field is detected"}), 400
-    
     
     conn = get_db()
     cur = conn.cursor()

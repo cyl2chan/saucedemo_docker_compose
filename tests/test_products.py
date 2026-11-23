@@ -139,46 +139,42 @@ def test_create_product_missing_field(products_api, payload):
 
 @pytest.mark.parametrize("wrong_type_payload", [
     # wrong type of data
-    {"name": "Test Earbuds One", "price": "9.99", "in_stock": True},
+    {"name": "Test Earbuds One", "price": "9.99", "in_stock": True}, #0
     {"name": "Test Earbuds Two", "price": 9.99, "in_stock": "Yes"},
-    {"name": 999, "price": 9.99, "in_stock": True},
+    {"name": 999, "price": 9.99, "in_stock": True}, #2
 
     # missing or empty fields
     {"name": "", "price": 9.99, "in_stock": True}, 
-    {"name": None, "price": 9.99, "in_stock": True},
+    {"name": None, "price": 9.99, "in_stock": True}, #4
     {},
 
     # price does not make sense
-    {"name": "Test Headphone One", "price": -9.99, "in_stock": True},
+    {"name": "Test Headphone One", "price": -9.99, "in_stock": True}, #6
     {"name": "Test Headphone Two", "price": 9999.99, "in_stock": True}, # 201
-    {"name": "Test Headphone Two.2", "price": 10000, "in_stock": True},
+    {"name": "Test Headphone Two.2", "price": 10000, "in_stock": True}, #8
     {"name": "Test Headphone Three", "price": 0, "in_stock": True},
-    {"name": "Test Headphone Four", "price": "", "in_stock": True},
+    {"name": "Test Headphone Four", "price": "", "in_stock": True}, #10
     {"name": "Test Headphone Five", "price": None, "in_stock": True},
-    {"name": "Test Headphone Six", "price": "hello", "in_stock": True},
+    {"name": "Test Headphone Six", "price": "hello", "in_stock": True},#12
     {"name": "Test Headphone Eight", "price": "$", "in_stock": True},
 
-    # too long a name
-    {"name": "Advanced Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True}, #201
-    {"name": "Excellent Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True}, #500
-
     # extra field API doesn't know about
-    {"name": "Test Keyboard One", "price": 9.99, "in_stock": True, "made_from": "Canada"},
+    {"name": "Test Keyboard One", "price": 9.99, "in_stock": True, "made_from": "Canada"}, #14
     {"name": "Test Keyboard Two", "price": 9.99, "in_stock": True, "manufacture_date": "Nov 18, 2022"},
-    {"name": "Test Keyboard Three", "price": 9.99, "in_stock": True, "color": "red"},
+    {"name": "Test Keyboard Three", "price": 9.99, "in_stock": True, "color": "red"}, #16
 ])
 def test_create_product_wrong_type(products_api, wrong_type_payload):
     response = create_product(products_api, wrong_type_payload)
+    payload_names = [wrong_type_payload["name"]]
 
     try: 
         print("response.status:", response.status)
-        assert response.status == 400
+        assert response.status == 400, f"product name: {payload_names}"
         assert response.json()["error"]
-    except: 
+    finally: 
         products_list = products_api.get("/api/products")
         products = products_list.json()
 
-        payload_names = [wrong_type_payload["name"]]
         print("payload_names:", payload_names, "; wrong_type_payload:", wrong_type_payload)
 
         def find_product_id(payload_names):
@@ -190,7 +186,43 @@ def test_create_product_wrong_type(products_api, wrong_type_payload):
 
         for payload_id in find_product_id(payload_names):
             response_delete = delete_product(products_api, payload_id)
-            assert response_delete.status == 200
+            assert response_delete.status == 200, f"product name: {payload_names}"
+
+# Test Headphone one, two. Both 201.
+
+        
+
+@pytest.mark.parametrize("too_long_name_payload", [
+    {"name": "Advanced Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True}, #201 #14
+    {"name": "Excellent Waterproof Outdoor Hiking Backpack with Adjustable Straps and Multiple Storage Compartments", "price": 9.99, "in_stock": True}, #500
+])
+def test_name_length(products_api, too_long_name_payload):
+    response = create_product(products_api, too_long_name_payload)
+    payload_names = [too_long_name_payload["name"]]
+
+    try: 
+        print("response.status: ", response.status)
+        print("product_name: ", payload_names)
+        assert response.status == 201, f"response status: {response.status}; response.text(): {response.text()}"
+
+        products_list = products_api.get("/api/products")
+        products = products_list.json()
+
+        def find_product_id(payload_names):
+            payload_ids = [] 
+            for product in products:
+                if product["name"] in payload_names:
+                    payload_ids.append(product["id"])
+            return payload_ids
+
+        for payload_id in find_product_id(payload_names):
+            response_delete = delete_product(products_api, payload_id)
+            assert response_delete.status == 200, f"product name: {payload_names}"
+
+    except:
+        assert response.status == 500, f"response status: {response.status}; response.text(): {response.text()}"
+
+
 
 
 # #| Duplicate entry: product with same name in one of items in database | 409 COnflict | Same item has already exist |
