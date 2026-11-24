@@ -10,7 +10,7 @@
 | empty body {} | 400 Bad Request | Information of name, price, and in_stock are required for a product to be created |
 
 | Too long a name: 100 | 201 | Since number of characters is within limit, product will be successfully created |
-| Too long a name: 101 | 400 Bad Request or 422 Unprocessable Content | Since input of name has exceeded limit, it's a problem or unable to process the value | 500 Server side error
+| Too long a name: 101 | 400 Bad Request or 422 Unprocessable Content | Since input of name has exceeded limit, it's a problem or unable to process the value | 500 Server side error, which is a better code
 
 | Price make no sense: negative, very large, zero, empty, null, letter, sympbols | 400 Bad Request or 422 Unprocessable Content| Since it makes on sense, it's a problem or unable to process the value | 400. Except price $9999.99
 

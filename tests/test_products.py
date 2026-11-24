@@ -219,7 +219,7 @@ def test_name_length(products_api, too_long_name_payload):
             assert response_delete.status == 200, f"product name: {payload_names}"
 
     except:
-        assert response.status == 500, f"response status: {response.status}; response.text(): {response.text()}"
+        assert response.status == 400, f"response status: {response.status}; response.text(): {response.text()}"
 
 
 

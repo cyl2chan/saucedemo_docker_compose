@@ -111,7 +111,7 @@ CREATE_PRODUCT_SCHEMA = {
     "type": "object",
     "required": ["name", "price"],
     "properties": {
-        "name": {"type": "string", "minLength": 3, "maxlength": 100}, 
+        "name": {"type": "string", "minLength": 3, "maxLength": 100}, 
         "price": {"type": "number", "minimum": 0.01, "maximum": 9999.99},
         "in_stock": {"type": "boolean"},
     "additionalProperties": False,
