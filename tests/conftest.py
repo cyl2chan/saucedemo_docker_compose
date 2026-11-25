@@ -5,7 +5,8 @@ PRODUCTS_BASE_URL = os.getenv("PRODUCTS_BASE_URL", "http://api:5000")
 
 @pytest.fixture(scope="session")
 def products_api(playwright: Playwright) -> APIRequestContext:
-    context = playwright.request.new_context(base_url=PRODUCTS_BASE_URL, timeout=10_000)
+    #context = playwright.request.new_context(base_url=PRODUCTS_BASE_URL, timeout=10_000)
+    context = playwright.request.new_context(base_url=PRODUCTS_BASE_URL, extra_http_headers={"X-Test-Run": "leon"}, timeout=10_000)
     yield context
     context.dispose()
 

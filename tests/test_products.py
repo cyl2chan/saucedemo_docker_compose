@@ -1,6 +1,6 @@
 from jsonschema import validate
 from schemas import PRODUCT_SCHEMA
-from products_api import create_product, delete_product
+from products_api import create_product, delete_product, get_products, get_product, replace_product
 import pytest
 
 # API phase 3 Homework:
@@ -222,6 +222,48 @@ def test_name_length(products_api, too_long_name_payload):
         assert response.status == 400, f"response status: {response.status}; response.text(): {response.text()}"
 
 
+PRODUCTS = "/api/products"
+def test_send_form_data_reject(products_api):
+    response = products_api.post(
+        PRODUCTS,
+        data='{"name": "A", "price": 1}',
+        headers={"Content-Type": "text/plain"},
+
+    )
+    assert response.status == 415, response.text()
+
+
+            # INSERT INTO products (name, price, in_stock) VALUES
+            # ('Sauce Labs Backpack', 29.99, TRUE),
+            # ('Sauce Labs Bike Light', 9.99, TRUE),
+            # ('Sauce Labs Bolt T-Shirt', 15.99, TRUE),
+            # ('Sauce Labs Fleece Jacket', 49.99, FALSE)
+
+@pytest.mark.parametrize("put_payload, original_payload", [
+    (
+    {"name": "Test Put 1", "price": 5.99, "in_stock": False}, # ('Sauce Labs Backpack', 29.99, TRUE)
+    {"name": "Sauce Labs Backpack", "price": 29.99, "in_stock": True}
+    ),
+])
+def test_replace_all_three_fields(products_api, put_payload, original_payload):
+    # 1. get all products
+    response_get = get_products(products_api)
+    products = response_get.json()
+    # 2. find id of that product
+    def product_id():
+        for product in products:
+            if product["name"] == "Sauce Labs Backpack":
+                return product["id"]
+    
+    # 3. replace that product with new payload
+    response_put = replace_product(products_api, product_id(), put_payload)
+    assert response_put.status == 200, f"response_put.status: {response_put.status}; response_put.text(): {response_put.text()}"
+
+    # 4. Read product back to confirm
+
+    # 5. cleanup
+    response_revert = replace_product(products_api, product_id(), original_payload)
+    assert response_revert.status == 200, f"response_revert.status: {response_revert.status}; response_revert.text(): {response_revert.text()}"
 
 
 # #| Duplicate entry: product with same name in one of items in database | 409 COnflict | Same item has already exist |

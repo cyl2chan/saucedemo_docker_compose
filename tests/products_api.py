@@ -9,7 +9,8 @@ def get_product(api: APIRequestContext, product_id) -> APIResponse:
     return api.get(f"{PRODUCTS}/{product_id}")
 
 def create_product(api: APIRequestContext, payload) -> APIResponse:
-    return api.post(PRODUCTS, data=payload)
+    #return api.post(PRODUCTS, data=payload)#, headers={"Content-Type": "text/plain"})
+    return api.post(PRODUCTS, data=payload)#, headers={"Content-Type": "text/plain"})
 
 # Step 2: Write the other three yourself: 
 # delete_product(api, product_id), replace_product(api, product_id, payload), update_product(api, product_id, payload).
