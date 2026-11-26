@@ -135,7 +135,7 @@ def test_create_product_missing_field(products_api, payload):
     assert response.json()["error"]
 
 
-# design my own bad inputs
+# design my own bad inputs: 
 
 @pytest.mark.parametrize("wrong_type_payload", [
     # wrong type of data
@@ -222,6 +222,7 @@ def test_name_length(products_api, too_long_name_payload):
         assert response.status == 400, f"response status: {response.status}; response.text(): {response.text()}"
 
 
+# Step 7: Request headers and body format
 PRODUCTS = "/api/products"
 def test_send_form_data_reject(products_api):
     response = products_api.post(
@@ -239,6 +240,8 @@ def test_send_form_data_reject(products_api):
             # ('Sauce Labs Bolt T-Shirt', 15.99, TRUE),
             # ('Sauce Labs Fleece Jacket', 49.99, FALSE)
 
+# Step 8: Update (PUT and PATCH) and delete
+# PUT, which replaces the whole product: 1.Replace all three fields and read the product back to confirm.
 @pytest.mark.parametrize("put_payload, original_payload", [
     (
     {"name": "Test Put 1", "price": 5.99, "in_stock": False}, # ('Sauce Labs Backpack', 29.99, TRUE)
@@ -269,6 +272,36 @@ def test_replace_all_three_fields(products_api, put_payload, original_payload):
     # 5. cleanup
     response_revert = replace_product(products_api, product_id(), original_payload)
     assert response_revert.status == 200, f"response_revert.status: {response_revert.status}; response_revert.text(): {response_revert.text()}"
+
+
+# Step 8: Update (PUT and PATCH) and delete
+# PUT, which replaces the whole product: 
+# 2.Create a product with in_stock: False, then PUT it with only name and price. Predict what happens to in_stock, then check. Is that a bug or correct PUT behaviour?
+@pytest.mark.parametrize("new_payload, put_payload", [
+    (
+    {"name": "Test Airpod 1", "price": 99.99, "in_stock": False},
+    {"name": "Test Airpod 2.0", "price": 109.99}
+    )
+])
+def test_create_product_then_put(products_api, new_payload, put_payload):
+    # 1. create new product
+    response_create = create_product(products_api, new_payload)
+    new_product = response_create.json()
+    assert response_create.status == 201, f"response_create.status: {response_create.status}; response_create.text(): {response_create.text()}"
+
+    # 2. get product id
+    response_get = get_products(products_api)
+    products = response_get.json()
+    def product_id():
+        for product in products:
+            if product["name"] == new_payload["name"]:
+                return product["id"]
+
+    # 3. put with only name and price
+    response_put = replace_product(products_api, product_id(), put_payload)
+    product_in_stock = response_put.json()["in_stock"]
+    print("product_in_stock:", product_in_stock)
+    assert response_put.status == 200, f"response_put.status: {response_put.status}; response_put.text(): {response_put.text}"
 
 
 # #| Duplicate entry: product with same name in one of items in database | 409 COnflict | Same item has already exist |
