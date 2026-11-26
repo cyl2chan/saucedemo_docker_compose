@@ -24,3 +24,11 @@ def replace_product(api: APIRequestContext, product_id, payload) -> APIResponse:
 
 def update_product(api: APIRequestContext, product_id, payload) -> APIResponse:
     return api.patch(f"{PRODUCTS}/{product_id}", data=payload)
+
+# Create helper function for getting product id to reduce repeated code
+def get_product_id(api: APIRequestContext, payload):
+    response_get = get_products(api)
+    products = response_get.json()
+    for product in products:
+        if product["name"] == payload["name"]:
+            return product["id"]

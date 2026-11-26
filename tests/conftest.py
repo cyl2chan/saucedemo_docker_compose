@@ -19,5 +19,10 @@ def new_product(products_api):
     assert response.status == 201, response.text()
 
     product = response.json()
-    yield product
+    yield payload, product
     delete_product(products_api, product["id"])
+
+@pytest.fixture
+def get_payload(new_product):
+    payload, _ = new_product
+    return payload

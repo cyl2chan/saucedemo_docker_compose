@@ -1,6 +1,6 @@
 from jsonschema import validate
 from schemas import PRODUCT_SCHEMA
-from products_api import create_product, delete_product, get_products, get_product, replace_product
+from products_api import create_product, delete_product, get_products, get_product, replace_product, get_product_id
 import pytest
 
 # API phase 3 Homework:
@@ -84,41 +84,29 @@ def test_create_product(products_api):
 
     # TODO 2 (the receipt): GET the product by its id and check it matches created
     # TODO 3: the new id appears in GET /api/products
-    response_products_list = products_api.get("/api/products")
-    products = response_products_list.json()
-    def product_id():
-        for product in products:
-            if product["name"] == "Leon Test Mug":
-                return product["id"]
-    print("products:", products)
-    print("product_id():", product_id(), "; created['id']:", created['id'])
-    assert product_id() == created["id"], f"product_id(): {product_id()}; created['id']: {created['id']}"
+    product_id = get_product_id(products_api, payload)
+    print("product_id:", product_id, "; created['id']:", created['id'])
+    assert product_id == created["id"], f"product_id: {product_id}; created['id']: {created['id']}"
 
     # TODO 4: clean up by deleting the product
-    response_delete = products_api.delete(f"/api/products/{product_id()}")
+    response_delete = products_api.delete(f"/api/products/{product_id}")
     assert response_delete.status == 200
 
 # API phase 3 Homework:
 # Step 5: A fixture that creates and cleans up
 # Rewrite your Step 3 single-product test to use new_product in conftest.py
-def test_rewrite_create_product(products_api, new_product):
+def test_rewrite_create_product(products_api, new_product, get_payload):
     # TODO 1: every field in payload comes back unchanged in created, and created has an "id"
-    assert new_product["name"] == "Test Product"
-    assert new_product["price"] == 12.50
-    assert new_product["in_stock"] == True
-    assert "id" in new_product
+    assert new_product[1]["name"] == "Test Product"
+    assert new_product[1]["price"] == 12.50
+    assert new_product[1]["in_stock"] == True
+    assert "id" in new_product[1]
 
     # TODO 2 (the receipt): GET the product by its id and check it matches created
     # TODO 3: the new id appears in GET /api/products
-    response_products_list = products_api.get("/api/products")
-    products = response_products_list.json()
-    def product_id():
-        for product in products:
-            if product["name"] == "Test Product":
-                return product["id"]
-    print("products:", products)
-    print("product_id():", product_id(), "; new_product['id']:", new_product['id'])
-    assert product_id() == new_product["id"], f"product_id(): {product_id()}; new_product['id']: {new_product['id']}"
+    product_id = get_product_id(products_api, get_payload)
+    print("product_id:", product_id, "; new_product's id':", new_product[1]['id'])
+    assert product_id == new_product[1]["id"], f"product_id: {product_id}; new_product's id: {new_product[1]['id']}"
 
     # TODO 4: clean up by deleting the product
     # code to delete product is in conftest.py and products_api.py
@@ -253,24 +241,25 @@ def test_replace_all_three_fields(products_api, put_payload, original_payload):
     response_get = get_products(products_api)
     products = response_get.json()
     # 2. find id of that product
-    def product_id():
-        for product in products:
-            if product["name"] == "Sauce Labs Backpack":
-                return product["id"]
+    product_id = get_product_id(products_api, original_payload)
+    # def product_id():
+    #     for product in products:
+    #         if product["name"] == "Sauce Labs Backpack":
+    #             return product["id"]
     
     # 3. replace that product with new payload
-    response_put = replace_product(products_api, product_id(), put_payload)
+    response_put = replace_product(products_api, product_id, put_payload)
     assert response_put.status == 200, f"response_put.status: {response_put.status}; response_put.text(): {response_put.text()}"
 
     # 4. Read product back to confirm
-    response_get_product = get_product(products_api, product_id())
+    response_get_product = get_product(products_api, product_id)
     product = response_get_product.json()
     assert product["name"] == put_payload["name"]
     assert product["price"] == put_payload["price"]
     assert product["in_stock"] == put_payload["in_stock"]
 
     # 5. cleanup
-    response_revert = replace_product(products_api, product_id(), original_payload)
+    response_revert = replace_product(products_api, product_id, original_payload)
     assert response_revert.status == 200, f"response_revert.status: {response_revert.status}; response_revert.text(): {response_revert.text()}"
 
 
@@ -290,15 +279,16 @@ def test_create_product_then_put(products_api, new_payload, put_payload):
     assert response_create.status == 201, f"response_create.status: {response_create.status}; response_create.text(): {response_create.text()}"
 
     # 2. get product id
-    response_get = get_products(products_api)
-    products = response_get.json()
-    def product_id():
-        for product in products:
-            if product["name"] == new_payload["name"]:
-                return product["id"]
+    product_id = get_product_id(products_api, new_payload)
+    # response_get = get_products(products_api)
+    # products = response_get.json()
+    # def product_id():
+    #     for product in products:
+    #         if product["name"] == new_payload["name"]:
+    #             return product["id"]
 
     # 3. put with only name and price
-    response_put = replace_product(products_api, product_id(), put_payload)
+    response_put = replace_product(products_api, product_id, put_payload)
     product_in_stock = response_put.json()["in_stock"]
     print("product_in_stock:", product_in_stock)
     assert response_put.status == 200, f"response_put.status: {response_put.status}; response_put.text(): {response_put.text}"
