@@ -260,6 +260,11 @@ def test_replace_all_three_fields(products_api, put_payload, original_payload):
     assert response_put.status == 200, f"response_put.status: {response_put.status}; response_put.text(): {response_put.text()}"
 
     # 4. Read product back to confirm
+    response_get_product = get_product(products_api, product_id())
+    product = response_get_product.json()
+    assert product["name"] == put_payload["name"]
+    assert product["price"] == put_payload["price"]
+    assert product["in_stock"] == put_payload["in_stock"]
 
     # 5. cleanup
     response_revert = replace_product(products_api, product_id(), original_payload)
